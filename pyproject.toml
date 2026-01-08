@@ -1,0 +1,18 @@
+[project]
+name = "kegger"
+version = "0.1.0"
+description = "Interact with KEGG API"
+readme = "README.md"
+authors = [
+    { name = "csaltikov", email = "saltikov@ucsc.edu" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "pandas>=2.3.3",
+    "requests>=2.32.5",
+    "requests-cache>=1.2.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
