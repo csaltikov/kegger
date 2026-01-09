@@ -1,7 +1,7 @@
 # kegger
 Light weight python tool for interacting with KEGG API.
 
-Retrieve genes and KEGG pathway for you favorite organisms in the KEGG database
+Retrieve genes and KEGG pathway for your favorite organisms in the KEGG database
 
 ```
 org = "eco"
