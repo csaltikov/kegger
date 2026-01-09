@@ -8,7 +8,7 @@ import os
 from collections import defaultdict
 from datetime import timedelta
 
-requests_cache.install_cache("kegg_cache", expire_after=timedelta(days=7))
+requests_cache.install_cache("kegg_cache", expire_after=timedelta(days=30))
 
 
 def get_url(url, type="text"):
