@@ -87,7 +87,7 @@ def clean_entry(entry: dict) -> dict:
             cleaned_entry[tag] = [v.strip() for v in value if v.strip()]
         elif tag == "PATHWAY_MAP":
             cleaned_entry[tag] = value[0].split("  ")
-        elif tag in ("PATHWAY", "GENES", "REACTION"):
+        elif tag in ("PATHWAY", "GENES", "REACTION", "MODULE"):
             for v in value:
                 cleaned_entry[tag].append(v.strip())
         else:
