@@ -59,6 +59,12 @@ def get_path(pathid):
     return request
 
 
+def get_entry(entry_id):
+    url = f"https://rest.kegg.jp/get/{entry_id}"
+    request = get_url(url, type="text")
+    return request
+
+
 def get_org(org: str) -> pd.DataFrame:
     url = f"https://rest.kegg.jp/list/{org}"
     response = requests.get(url)
@@ -81,7 +87,7 @@ def clean_entry(entry: dict) -> dict:
             cleaned_entry[tag] = [v.strip() for v in value if v.strip()]
         elif tag == "PATHWAY_MAP":
             cleaned_entry[tag] = value[0].split("  ")
-        elif tag == "PATHWAY":
+        elif tag in ("PATHWAY", "GENES", "REACTION"):
             for v in value:
                 cleaned_entry[tag].append(v.strip())
         else:
