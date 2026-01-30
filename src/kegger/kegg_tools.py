@@ -29,7 +29,7 @@ def get_kegg(results, org: str, save=False) -> pd.DataFrame:
     return pathways_df
 
 
-def list_all_pathways(org) -> pd.DataFrame:
+def list_all_pathways(org: str) -> pd.DataFrame:
     url = f'https://rest.kegg.jp/list/pathway/{org}'
     response = get_url(url)
     record = io.StringIO(response)
@@ -38,7 +38,27 @@ def list_all_pathways(org) -> pd.DataFrame:
     return df
 
 
-def genes_to_pathways(org) -> pd.DataFrame:
+def genes_to_pathways(org: str) -> pd.DataFrame:
+    """
+    Retrieves the mapping between genes and their associated pathways for an organism.
+
+    Queries the KEGG 'link' endpoint to produce a many-to-many map of pathways
+    and gene identifiers. This is useful for enrichment analysis or finding
+    all genes within a specific biological process.
+
+    Args:
+        org: The KEGG organism code (e.g., 'shn' or 'eco').
+
+    Returns:
+        pd.DataFrame: A two-column DataFrame:
+            - 'pathid': The KEGG pathway identifier (e.g., 'path:shn00010').
+            - 'gene': The specific gene identifier (e.g., 'shn:Shewana3_0001').
+
+    Example:
+        >>> df_map = genes_to_pathways('shn')
+        >>> # To find all genes in a specific pathway:
+        >>> glycolysis = df_map[df_map['pathid'] == 'path:shn00010']
+    """
     url = f'https://rest.kegg.jp/link/{org}/pathway'
     response = get_url(url)
     record = io.StringIO(response)
@@ -47,25 +67,45 @@ def genes_to_pathways(org) -> pd.DataFrame:
     return df
 
 
-def get_module(mdid):
+def get_module(mdid: str):
     url = f"https://rest.kegg.jp/get/md:{mdid}"
     request = get_url(url, type="text")
     return request
 
 
-def get_path(pathid):
+def get_path(pathid: str):
     url = f"https://rest.kegg.jp/get/{pathid}"
     request = get_url(url, type="text")
     return request
 
 
-def get_entry(entry_id):
+def get_entry(entry_id: str):
     url = f"https://rest.kegg.jp/get/{entry_id}"
     request = get_url(url, type="text")
     return request
 
 
 def get_org(org: str) -> pd.DataFrame:
+    """
+    Retrieve and parse a KEGG organism genome list.
+
+    Connects to the KEGG REST API 'list' endpoint to retrieve gene-level
+    metadata and converts the tab-delimited response into a structured DataFrame.
+
+    Parameters
+    ----------
+    org : str
+        The three- or four-letter KEGG organism identifier.
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        DataFrame with the following columns:
+        - gene: KEGG gene identifier (e.g., 'shn:Shewana3_0001')
+        - feature: Biological category (e.g., 'CDS', 'RNA')
+        - position: Chromosomal coordinates
+        - annotation: Functional description/gene name
+    """
     url = f"https://rest.kegg.jp/list/{org}"
     response = requests.get(url)
     record = io.StringIO(response.text)
@@ -78,7 +118,7 @@ def clean_entry(entry: dict) -> dict:
     cleaned_entry = defaultdict(list)
     for tag, value in entry.items():
         if tag == "ENTRY":
-            cleaned_entry[tag] = value[0].split() #re.sub(r"(\s+)Pathway", "", value[0])
+            cleaned_entry[tag] = value[0].split()
         elif tag in ("NAME", "ORGANISM"):
             cleaned_entry[tag] = value[0].strip()
         elif tag == "GENE":
