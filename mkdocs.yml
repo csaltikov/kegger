@@ -1,0 +1,12 @@
+site_name: Kegger
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Tutorials:
+      - Getting Started: tutorials/getting-started.md
+  - Reference:
+      - API Overview: reference/api.md
+  - About:
+      - Changelog: changelog.md
