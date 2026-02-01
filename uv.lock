@@ -165,11 +165,10 @@ wheels = [
 
 [[package]]
 name = "kegger"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "pandas" },
-    { name = "pandas-stubs" },
     { name = "requests" },
     { name = "requests-cache" },
 ]
@@ -186,7 +185,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "pandas", specifier = ">=2.3.3" },
-    { name = "pandas-stubs", specifier = "==2.3.3.260113" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "requests-cache", specifier = ">=1.2.1" },
 ]
