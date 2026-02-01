@@ -1,2 +1,1 @@
-def hello() -> str:
-    return "Hello from kegger!"
+from .kegg_tools import *

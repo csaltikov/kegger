@@ -4,5 +4,3 @@ theme:
 
 nav:
   - Home: index.md
-  - Tutorials:
-      - Getting Started: tutorials/getting-started.md

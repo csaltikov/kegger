@@ -1,4 +1,4 @@
-from kegger import kegg_tools as kg
+import kegger as kg
 
 # 1. Initialize the cache so we don't spam KEGG
 kg.initialize_kegger(cache_path="kegg_cache", expire_days=7)

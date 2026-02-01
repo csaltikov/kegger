@@ -14,7 +14,7 @@ A lightweight tool for interfacing with the KEGG (Kyoto Encyclopedia of Genes an
 To get started, you can initialize the optional cache and fetch a specific pathway record:
 
 ```python
-from kegger import kegg_tools as kg
+import kegger as kg
 
 # Optional: Enable caching for 30 days
 kg.initialize_kegger(cache_name="my_kegg_cache", expire_days=30)

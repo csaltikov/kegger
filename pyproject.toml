@@ -1,12 +1,27 @@
 [project]
 name = "kegger"
-version = "0.1.4"
+version = "0.1.5"
 description = "Interact with KEGG API"
 readme = "README.md"
 authors = [
     { name = "csaltikov", email = "saltikov@ucsc.edu" }
 ]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
 requires-python = ">=3.13"
+keywords = ["bioinformatics", "genomics", "KEGG", "metabolism", "api-wrapper", "pandas", "microbiology"]
+
+[project.urls]
+Homepage = "https://github.com/csaltikov/kegger"
+Repository = "https://github.com/csaltikov/kegger"
+Issues = "https://github.com/csaltikov/kegger/issues"
+
 dependencies = [
     "pandas>=2.3.3",
     "requests>=2.32.5",
