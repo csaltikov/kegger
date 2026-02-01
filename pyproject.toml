@@ -17,10 +17,6 @@ classifiers = [
 requires-python = ">=3.13"
 keywords = ["bioinformatics", "genomics", "KEGG", "metabolism", "api-wrapper", "pandas", "microbiology"]
 
-[project.urls]
-Homepage = "https://github.com/csaltikov/kegger"
-Repository = "https://github.com/csaltikov/kegger"
-Issues = "https://github.com/csaltikov/kegger/issues"
 
 dependencies = [
     "pandas>=2.3.3",
@@ -28,9 +24,16 @@ dependencies = [
     "requests-cache>=1.2.1",
 ]
 
+[project.urls]
+Homepage = "https://github.com/csaltikov/kegger"
+Repository = "https://github.com/csaltikov/kegger"
+Issues = "https://github.com/csaltikov/kegger/issues"
+
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
 
 [dependency-groups]
 dev = [
