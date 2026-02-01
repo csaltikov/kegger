@@ -179,6 +179,8 @@ dev = [
     { name = "mkdocs" },
     { name = "mkdocs-material" },
     { name = "mkdocstrings", extra = ["python"] },
+    { name = "pandas-stubs" },
+    { name = "types-pytz" },
 ]
 
 [package.metadata]
@@ -194,6 +196,8 @@ dev = [
     { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "mkdocs-material", specifier = ">=9.7.1" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.2" },
+    { name = "pandas-stubs", specifier = ">=2.3.3.260113" },
+    { name = "types-pytz", specifier = ">=2025.2.0.20251108" },
 ]
 
 [[package]]
