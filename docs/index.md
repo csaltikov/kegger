@@ -1,30 +1,40 @@
 # Welcome to Kegger
 
-A ligthweight tool for interfacing with the KEGG database.
+A lightweight tool for interfacing with the KEGG (Kyoto Encyclopedia of Genes and Genomes) database.
 
-Retrieve KEGG pathways by organism id code (e.g. eco, hsa) for use in dataframes or databases.
+`kegger` allows you to retrieve biological pathways, genome annotations, and gene-to-pathway mappings for use in Pandas DataFrames or downstream databases (like Django or SQLAlchemy).
 
-Uses caching for speeding up repeated calls for the same KEGG id.
+## Key Features
+* **Automated Parsing:** Converts tricky KEGG flat-files into clean Python dictionaries.
+* **Pandas Integration:** Native support for converting KEGG lists into DataFrames.
+* **Smart Caching:** Optional SQLite caching to speed up repeated calls and reduce server load.
 
-## Commands
-Easy example to get the pathway for E. coli's eco00010, glycolysis pathway. Below get_path() calls the KEGG API and returns the raw entry.
+## Quick Start
 
-The next function, kegg_parser() loops through the request and converts the entry into a dictionary.
+To get started, you can initialize the optional cache and fetch a specific pathway record:
 
-You can use the dictionary as an input into a dataframe or whatever data system you are interested (e.g Django model)
+```python
+from kegger import kegg_tools as kg
 
-    import kegger as kg
-    org = "eco"
-    kd = "eco00010"
-    path_record = kg.get_path(kd)
-    path_dict = kg.kegg_parser(path_record)
-    print(path_dict.keys())
-    print(path_dict.get("GENE"))
+# Optional: Enable caching for 30 days
+kg.initialize_kegger(cache_name="my_kegg_cache", expire_days=30)
 
-Once you run the code, you may notice a new file being created, kegg_cache.sqlite.
-This will hold all the previous requests to the KEGG API for up to 30 days.
+# Fetch Glycolysis for E. coli
+org = "eco"
+path_id = "path:eco00010"
+path_record = kg.get_path(path_id)
+
+# Parse the raw text into a structured dictionary
+path_dict = kg.kegg_parser(path_record)
+
+print(path_dict.get("NAME"))
+print(path_dict.get("GENE")[:5]) # Show first 5 genes
+```
 
 ## Project layout
 
     kegger/
-        kegg_tools.py # the main library
+        kegg_tools.py    # Core library functions
+    examples/
+        basic_usage.py   # Starter script
+        genome_mapping.py # Advanced DataFrame examples

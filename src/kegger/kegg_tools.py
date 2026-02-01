@@ -8,13 +8,19 @@ import os
 from collections import defaultdict
 from datetime import timedelta
 
-requests_cache.install_cache("kegg_cache", expire_after=timedelta(days=30))
+
+def initialize_kegger(cache_path: str | None = None, expire_days: int = 30):
+    if cache_path is None:
+        cache_path = "kegg_cache"
+    requests_cache.install_cache(cache_path,
+                                 backend="sqlite",
+                                 expire_days=timedelta(days=expire_days))
 
 
-def get_url(url, type="text"):
+def get_url(url: str, request_type="text") -> str | dict:
     response = requests.get(url)
     response.raise_for_status()
-    if type == "json":
+    if request_type == "json":
         result = response.json()
     else:
         result = response.text
@@ -35,6 +41,7 @@ def list_all_pathways(org: str) -> pd.DataFrame:
     record = io.StringIO(response)
     col_names = ["pathid", "description"]
     df = pd.read_csv(record, sep="\t", header=None, names=col_names)
+    df["pathid"] = df["pathid"].str.replace("path:", "", regex=False)
     return df
 
 
@@ -57,31 +64,33 @@ def genes_to_pathways(org: str) -> pd.DataFrame:
     Example:
         >>> df_map = genes_to_pathways('shn')
         >>> # To find all genes in a specific pathway:
-        >>> glycolysis = df_map[df_map['pathid'] == 'path:shn00010']
+        >>> glycolysis = df_map[df_map['pathid'] == 'shn00010']
     """
     url = f'https://rest.kegg.jp/link/{org}/pathway'
     response = get_url(url)
     record = io.StringIO(response)
     col_names = ["pathid", "gene"]
     df = pd.read_csv(record, sep="\t", header=None, names=col_names)
+    df["pathid"] = df["pathid"].str.replace("path:", "", regex=False)
+    df["gene"] = df["gene"].str.replace(f"{org}:", "", regex=False)
     return df
 
 
 def get_module(mdid: str):
     url = f"https://rest.kegg.jp/get/md:{mdid}"
-    request = get_url(url, type="text")
+    request = get_url(url, request_type="text")
     return request
 
 
 def get_path(pathid: str):
     url = f"https://rest.kegg.jp/get/{pathid}"
-    request = get_url(url, type="text")
+    request = get_url(url, request_type="text")
     return request
 
 
 def get_entry(entry_id: str):
     url = f"https://rest.kegg.jp/get/{entry_id}"
-    request = get_url(url, type="text")
+    request = get_url(url, request_type="text")
     return request
 
 
@@ -111,6 +120,7 @@ def get_org(org: str) -> pd.DataFrame:
     record = io.StringIO(response.text)
     cols = ["gene", "feature", "position", "annotation"]
     df = pd.read_csv(record, sep="\t", header=None, names=cols)
+    df["gene"] = df["gene"].str.replace(f"{org}:", "", regex=False)
     return df
 
 
@@ -159,33 +169,3 @@ def kegg_parser(request_text: str, force_refresh=False) -> dict:
     cleaned_recs = clean_entry(saved_rec)
     os.remove(file_path_name)
     return cleaned_recs
-
-
-if __name__ == "__main__":
-    ##
-    org = "eco"
-    kd = "00190"
-    path_record = get_path(f"{org}{kd}")
-    path_dict = kegg_parser(path_record)
-    print(path_dict.keys())
-    print(path_dict.get("GENE"))
-
-    ##
-    org_pathways = list_all_pathways(org)
-    print(org_pathways.head())
-    pathway_mapper = org_pathways.set_index("pathid")["description"]
-
-    ##
-    genes_paths = genes_to_pathways(org)
-    # genes_paths["gene"] = genes_paths["gene"].str.replace(f"{org}:", "")
-    genes_paths["pathid"] = genes_paths["pathid"].str.replace("path:", "")
-    genes_paths["description"] = genes_paths["pathid"].map(pathway_mapper)
-    print(genes_paths.head())
-
-    ##
-    org_annotations = get_org(org)
-    print(org_annotations.head())
-
-    ##
-    res = genes_paths.merge(org_annotations, on="gene", how="left")
-    print(res.shape)
