@@ -21,7 +21,7 @@ kg.initialize_kegger(cache_name="my_kegg_cache", expire_days=30)
 
 # Fetch Glycolysis for E. coli
 org = "eco"
-path_id = "path:eco00010"
+path_id = "eco00010"  # or 'path:eco00010'
 path_record = kg.get_path(path_id)
 
 # Parse the raw text into a structured dictionary
