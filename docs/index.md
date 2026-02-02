@@ -1,4 +1,5 @@
 # Welcome to Kegger
+[![PyPI version](https://img.shields.io/pypi/v/kegger.svg)](https://pypi.org/project/kegger/)
 
 A lightweight tool for interfacing with the KEGG (Kyoto Encyclopedia of Genes and Genomes) database.
 
@@ -47,3 +48,18 @@ Glycolysis / Gluconeogenesis - Escherichia coli K-12 MG1655
     examples/
         basic_usage.py   # Starter script
         genome_mapping.py # Advanced DataFrame examples
+
+## Data Attribution and Citations
+
+This package retrieves data from the **KEGG (Kyoto Encyclopedia of Genes and Genomes)** REST API. 
+
+* **Data Source:** [KEGG REST API](https://www.kegg.jp/kegg/rest/keggapi.html)
+* **Terms of Use:** Please note that KEGG is for academic use by academic users at academic institutions. For-profit users may require a license. See the [KEGG Terms of Use](https://www.kegg.jp/kegg/legal.html) for details.
+
+If you use data retrieved via `kegger` in a publication, please cite the primary KEGG reference:
+
+> Kanehisa, M. and Goto, S.; **KEGG: kyoto encyclopedia of genes and genomes.** *Nucleic Acids Res.* 28, 27-30 (2000). [doi:10.1093/nar/28.1.27](https://doi.org/10.1093/nar/28.1.27)
+
+## Site Downloads
+[![Downloads](https://static.pepy.tech/badge/kegger/month)](https://pepy.tech/project/kegger)
+[![Total Downloads](https://static.pepy.tech/badge/kegger)](https://pepy.tech/project/kegger)
