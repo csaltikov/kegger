@@ -10,14 +10,13 @@ A lightweight tool for interfacing with the KEGG (Kyoto Encyclopedia of Genes an
 * **Smart Caching:** Optional SQLite caching to speed up repeated calls and reduce server load.
 
 ## Quick Start
-
 To get started, you can initialize the optional cache and fetch a specific pathway record:
 
 ```python
 import kegger as kg
 
 # Optional: Enable caching for 30 days
-kg.initialize_kegger(cache_name="my_kegg_cache", expire_days=30)
+kg.initialize_kegger(cache_path="my_kegg_cache", expire_days=30)
 
 # Fetch Glycolysis for E. coli
 org = "eco"
@@ -27,8 +26,18 @@ path_record = kg.get_path(path_id)
 # Parse the raw text into a structured dictionary
 path_dict = kg.kegg_parser(path_record)
 
+print(path_dict.keys())
 print(path_dict.get("NAME"))
 print(path_dict.get("GENE")[:5]) # Show first 5 genes
+```
+```text
+dict_keys(['ENTRY', 'NAME', 'DESCRIPTION', 'CLASS', 'PATHWAY_MAP', 'MODULE',
+            'DBLINKS', 'ORGANISM', 'GENE', 'ORTHOLOG', 'COMPOUND', 'REFERENCE',
+            'AUTHORS', 'TITLE', 'JOURNAL', 'REL_PATHWAY', 'KO_PATHWAY'])
+
+Glycolysis / Gluconeogenesis - Escherichia coli K-12 MG1655
+
+['b0114', 'b0115', 'b0116', 'b0325', 'b0356']
 ```
 
 ## Project layout

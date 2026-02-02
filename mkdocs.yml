@@ -1,11 +1,26 @@
 site_name: Kegger
 site_description: Interact with the KEGG API using Python and Pandas.
 site_url: https://csaltikov.github.io/kegger/
+repo_url: https://github.com/csaltikov/kegger
+repo_name: csaltikov/kegger
 
 theme:
   name: material
-  palette: teal
-  accent: indigo
+  palette:
+    # Light mode
+    - scheme: default
+      primary: teal
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - scheme: slate
+      primary: teal
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 
 plugins:
   - search
