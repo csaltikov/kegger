@@ -10,6 +10,24 @@ from datetime import timedelta
 
 
 def initialize_kegger(cache_path: str | None = None, expire_days: int = 30):
+    """
+        Sets up a persistent local cache for KEGG API requests.
+
+        This function initializes a SQLite database to store API responses. Subsequent
+        calls to the same KEGG URL will pull data from the local cache instead of
+        the internet, significantly speeding up data processing and reducing
+        server load.
+
+        Args:
+            cache_path (str | None): The filename or path for the SQLite cache.
+                Defaults to "kegg_cache" (which creates 'kegg_cache.sqlite').
+            expire_days (int): How many days a cached response remains valid
+                before a fresh request is forced. Defaults to 30.
+
+        Note:
+            If a cache file already exists at the specified path, this function
+            will automatically load and reuse it.
+    """
     if cache_path is None:
         cache_path = "kegg_cache"
     requests_cache.install_cache(cache_path,
@@ -36,6 +54,27 @@ def get_kegg(results, org: str, save=False) -> pd.DataFrame:
 
 
 def list_all_pathways(org: str) -> pd.DataFrame:
+    """
+        Retrieves a list of all KEGG pathways for a specific organism.
+
+        This function queries the KEGG REST API to find every metabolic and signaling
+        pathway associated with the provided organism code. It automatically cleans
+        the 'path:' prefix from the results to simplify downstream data merging.
+
+        Args:
+            org (str): The 3-4 letter KEGG organism code (e.g., 'eco' for E. coli,
+                'hsa' for humans, or 'mmu' for mouse).
+
+        Returns:
+            pd.DataFrame: A DataFrame with two columns:
+                - 'pathid': The unique KEGG pathway identifier (e.g., 'eco00010').
+                - 'description': The human-readable name of the pathway.
+
+        Example:
+            >>> import kegger
+            >>> pathways = kegger.list_all_pathways('eco')
+            >>> print(pathways.head())
+    """
     url = f'https://rest.kegg.jp/list/pathway/{org}'
     response = get_url(url)
     record = io.StringIO(response)
@@ -58,8 +97,8 @@ def genes_to_pathways(org: str) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: A two-column DataFrame:
-            - 'pathid': The KEGG pathway identifier (e.g., 'path:shn00010').
-            - 'gene': The specific gene identifier (e.g., 'shn:Shewana3_0001').
+            - 'pathid': The KEGG pathway identifier (e.g., 'shn00010').
+            - 'gene': The specific gene identifier (e.g., 'Shewana3_0001').
 
     Example:
         >>> df_map = genes_to_pathways('shn')
@@ -71,6 +110,7 @@ def genes_to_pathways(org: str) -> pd.DataFrame:
     record = io.StringIO(response)
     col_names = ["pathid", "gene"]
     df = pd.read_csv(record, sep="\t", header=None, names=col_names)
+    # Removing the 'org' and 'path:' prefixes
     df["pathid"] = df["pathid"].str.replace("path:", "", regex=False)
     df["gene"] = df["gene"].str.replace(f"{org}:", "", regex=False)
     return df
@@ -110,7 +150,7 @@ def get_org(org: str) -> pd.DataFrame:
     -------
     df : pandas.DataFrame
         DataFrame with the following columns:
-        - gene: KEGG gene identifier (e.g., 'shn:Shewana3_0001')
+        - gene: KEGG gene identifier (e.g., 'Shewana3_0001')
         - feature: Biological category (e.g., 'CDS', 'RNA')
         - position: Chromosomal coordinates
         - annotation: Functional description/gene name
@@ -120,11 +160,31 @@ def get_org(org: str) -> pd.DataFrame:
     record = io.StringIO(response.text)
     cols = ["gene", "feature", "position", "annotation"]
     df = pd.read_csv(record, sep="\t", header=None, names=cols)
+    # Removing the 'org' prefix
     df["gene"] = df["gene"].str.replace(f"{org}:", "", regex=False)
     return df
 
 
 def clean_entry(entry: dict) -> dict:
+    """
+        Standardizes and cleans raw KEGG record fields.
+
+        This internal helper takes a dictionary of raw tags and values and applies
+        specific parsing logic based on the KEGG field type (e.g., splitting GENE
+        identifiers from their descriptions or parsing PATHWAY_MAP strings).
+
+        Args:
+            entry (dict): A dictionary where keys are KEGG tags (e.g., 'GENE')
+                and values are lists of raw string lines.
+
+        Returns:
+            dict: A cleaned dictionary where values are strings or lists
+                of strings, structured for easier data analysis.
+
+        Note:
+            Special handling is applied to 'GENE' fields to separate gene IDs
+            from their associated 'ORTHOLOG' identifiers.
+    """
     cleaned_entry = defaultdict(list)
     for tag, value in entry.items():
         if tag == "ENTRY":
@@ -146,8 +206,21 @@ def clean_entry(entry: dict) -> dict:
     return cleaned_entry
 
 
-def kegg_parser(request_text: str, force_refresh=False) -> dict:
-    # Hashing ensures the key is always the same length regardless of input size
+def kegg_parser(request_text: str) -> dict:
+    """
+        Parses a raw KEGG REST API response into a structured dictionary.
+
+        This function reads the flat-file format used by KEGG, identifying tags
+        (like ENTRY, NAME, PATHWAY) and capturing their associated data. It
+        utilizes a temporary file for memory-efficient processing of large records.
+
+        Args:
+            request_text (str): The raw text response from a KEGG REST API call.
+
+        Returns:
+            dict: A processed dictionary containing the parsed and cleaned
+                fields of the KEGG record.
+    """
     res = io.StringIO(request_text)
     with tempfile.NamedTemporaryFile(delete=False, mode="w+", encoding="utf-8") as file_path:
         shutil.copyfileobj(res, file_path)
@@ -155,17 +228,24 @@ def kegg_parser(request_text: str, force_refresh=False) -> dict:
 
     current_key = None
     saved_rec = dict()
-    with open(file_path_name, "r") as entry_file:
-        for line in entry_file:
-            if line.startswith("///"):
-                break
-            tag = line[:12].strip()
-            value = line[12:].strip()
-            if tag:
-                current_key = tag
-                saved_rec[current_key] = [value]
-            else:
-                saved_rec[current_key].append(value)
-    cleaned_recs = clean_entry(saved_rec)
-    os.remove(file_path_name)
+
+    try:
+        with open(file_path_name, "r") as entry_file:
+            for line in entry_file:
+                if line.startswith("///"):
+                    break
+                tag = line[:12].strip()
+                value = line[12:].strip()
+                if tag:
+                    current_key = tag
+                    saved_rec[current_key] = [value]
+                else:
+                    saved_rec[current_key].append(value)
+        cleaned_recs = clean_entry(saved_rec)
+    finally:
+        # Putting this in 'finally' ensures the temp file is deleted
+        # even if the parsing logic above crashes.
+        if os.path.exists(file_path_name):
+            os.remove(file_path_name)
+
     return cleaned_recs

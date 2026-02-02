@@ -1,6 +1,22 @@
 site_name: Kegger
+site_description: Interact with the KEGG API using Python and Pandas.
+site_url: https://csaltikov.github.io/kegger/
+
 theme:
   name: material
+  palette: teal
+  accent: indigo
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["."]
+          options:
+            show_source: true
+            show_root_heading: true
 
 nav:
   - Home: index.md
+  - API Reference: reference.md

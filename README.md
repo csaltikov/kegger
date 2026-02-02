@@ -1,5 +1,5 @@
 # kegger
-Light weight python tool for interacting with KEGG API.
+Interact with the KEGG API using Python and Pandas
 
 Retrieve genes and KEGG pathway for your favorite organisms in the KEGG database
 
