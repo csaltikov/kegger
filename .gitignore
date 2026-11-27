@@ -5,7 +5,6 @@ __pycache__/
 .idea/
 # C extensions
 *.so
-*.sqlite
 
 # Distribution / packaging
 .Python
@@ -26,6 +25,16 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# KEGG API response caches (requests-cache / aiohttp-client-cache)
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
