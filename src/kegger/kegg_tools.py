@@ -32,7 +32,7 @@ def initialize_kegger(cache_path: str | None = None, expire_days: int = 30):
         cache_path = "kegg_cache"
     requests_cache.install_cache(cache_path,
                                  backend="sqlite",
-                                 expire_days=timedelta(days=expire_days))
+                                 expire_after=timedelta(days=expire_days))
 
 
 def get_url(url: str, request_type="text") -> str | dict:
